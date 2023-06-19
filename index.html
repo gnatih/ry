@@ -26,67 +26,44 @@
     <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
       ({key: "AIzaSyBw3-v4qJfIrJQ8iOE3h2QfkBF-cxwD1HI", v: "beta"});</script>
     <script>
-      let map;
-      let marker;
-      const settings = {
-        async: true,
-        crossDomain: true,
-        url: "https://pullapi.tracknowgps.com/api/v1/index.php/getDevPos",
-        method: "GET",
-        headers: {
-          Authorization: "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=",
-        },
-      };
-
-      const options = {
-        method: "GET",
-        headers: {
-          "Acces-Control-Allow-Methods": "Content-Type, Authorization",
-          Authorization: "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=",
-        },
-      };
+      let map, data;
+      let markers = [];
+      const position = { lat: 23.0225, lng: 72.5714 };
 
       async function initMap() {
-        const position = { lat: 23.0225, lng: 72.5714 };
         const { Map } = await google.maps.importLibrary("maps");
         const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
         map = new Map(document.getElementById("map"), {
-          zoom: 6,
+          zoom: 14,
           center: position,
           mapId: "RATHYATRA_LIVE_MAP",
         });
 
-        const marker = new AdvancedMarkerElement({
-          map: map,
-          position: position,
-        });
+        setInterval(function () {
+          getData().then(function (res) {
+            for (const i in res) {
+              let pos = { lat: parseFloat(res[i].latitude), lng: parseFloat(res[i].longitude) };
+
+              markers[i] = new AdvancedMarkerElement({ map: map, position: pos });
+            }
+            console.log(markers.length);
+          });
+        }, 2000);
+
+        // marker = new AdvancedMarkerElement({
+        //   map: map,
+        //   position: position,
+        // });
       }
 
-      $(function () {
-        initMap();
-        const data = null;
+      async function getData() {
+        let res = await fetch("/api");
+        let data = await res.json();
+        return data.data;
+      }
 
-        const xhr = new XMLHttpRequest();
-        xhr.withCredentials = true;
-
-        xhr.addEventListener("readystatechange", function () {
-          if (this.readyState === this.DONE) {
-            console.log(this.responseText);
-          }
-        });
-
-        xhr.open("GET", "https://pullapi.tracknowgps.com/api/v1/index.php/getDevPos");
-        xhr.setRequestHeader("Authorization", "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=");
-
-        xhr.send(data);
-      });
-
-      // (function () {
-      //   setInterval(function () {
-
-      //   }, 2000);
-      // })();
+      initMap();
     </script>
   </body>
 </html>
