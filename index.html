@@ -28,6 +28,23 @@
     <script>
       let map;
       let marker;
+      const settings = {
+        async: true,
+        crossDomain: true,
+        url: "https://pullapi.tracknowgps.com/api/v1/index.php/getDevPos",
+        method: "GET",
+        headers: {
+          Authorization: "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=",
+        },
+      };
+
+      const options = {
+        method: "GET",
+        headers: {
+          "Acces-Control-Allow-Methods": "Content-Type, Authorization",
+          Authorization: "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=",
+        },
+      };
 
       async function initMap() {
         const position = { lat: 23.0225, lng: 72.5714 };
@@ -46,22 +63,23 @@
         });
       }
 
-      initMap();
-
       $(function () {
-        const settings = {
-          async: true,
-          crossDomain: true,
-          url: "https://pullapi.tracknowgps.com/api/v1/index.php/getDevPos",
-          method: "GET",
-          headers: {
-            Authorization: "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=",
-          },
-        };
+        initMap();
+        const data = null;
 
-        $.ajax(settings).done(function (response) {
-          console.log(response);
+        const xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+
+        xhr.addEventListener("readystatechange", function () {
+          if (this.readyState === this.DONE) {
+            console.log(this.responseText);
+          }
         });
+
+        xhr.open("GET", "https://pullapi.tracknowgps.com/api/v1/index.php/getDevPos");
+        xhr.setRequestHeader("Authorization", "Basic cnlhdHJhYXBpOlJ5YXRyYWFwaUAxMTE=");
+
+        xhr.send(data);
       });
 
       // (function () {
